@@ -1,0 +1,36 @@
+# requirements.txt — Python Package Dependencies
+# Install all packages with: pip install -r requirements.txt
+#
+# IMPORTANT: All versions below are pinned and tested together on Python 3.11.
+# Streamlit Community Cloud is told to use Python 3.11 via runtime.txt.
+#
+# WHY THESE SPECIFIC VERSIONS:
+#   - tensorflow 2.17.0  → latest stable TF that supports Python 3.9–3.12
+#   - numpy 1.26.4       → TensorFlow 2.17 requires numpy < 2.0 (strict upper bound)
+#   - opencv-python-headless → IMPORTANT: use 'headless' on servers (no display/GUI needed)
+#                              Regular 'opencv-python' needs libGL.so.1 which is NOT
+#                              available on Streamlit Cloud Linux containers → crash on import
+#   - All other versions are the latest stable releases compatible with Python 3.11
+
+# Deep learning framework — used to build and train the CNN model
+# TF 2.17.0 = latest stable version with Python 3.11 wheels on PyPI
+tensorflow==2.17.0
+
+# Web interface — turns Python scripts into interactive web apps
+streamlit==1.39.0
+
+# Image processing — HEADLESS version (no GUI) required for server/cloud deployment
+# Identical API to opencv-python — cv2.imread(), cv2.resize() etc. all work the same
+opencv-python-headless==4.10.0.84
+
+# Numerical computing — MUST be < 2.0 because TensorFlow 2.17 is not compatible with NumPy 2.x
+numpy==1.26.4
+
+# Plotting — saves training accuracy/loss curves as PNG
+matplotlib==3.9.2
+
+# Image handling in Streamlit — opening uploaded image files
+Pillow==10.4.0
+
+# Used by train.py for train/validation split and classification report
+scikit-learn==1.5.2
