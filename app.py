@@ -425,8 +425,8 @@ SIGN_COLOR = {
     "Speed Limit 40": "#FFC72C",
 }
 SIGN_EMOJI = {
-    "Stop": "🛑", "No Entry": "⛔",
-    "Turn Left": "⬅️", "Turn Right": "➡️", "Speed Limit 40": "🔢",
+    "Stop": "\U0001f6d1", "No Entry": "\u26d4",
+    "Turn Left": "\u2b05\ufe0f", "Turn Right": "\u27a1\ufe0f", "Speed Limit 40": "\U0001f522",
 }
 
 
@@ -870,7 +870,7 @@ with col_right:
             bar_color = SIGN_COLOR.get(cname, "#FFC72C")
             is_top    = (cname == class_name)
             head_cls  = "bar-head hi" if is_top else "bar-head"
-            emo       = SIGN_EMOJI.get(cname, "🚦")
+            emo       = SIGN_EMOJI.get(cname, "\U0001f6a6")
             pct_str   = f"{prob * 100:.1f}"
 
             result_html += f"""
