@@ -539,6 +539,16 @@ def gauge_svg(confidence: float, color: str) -> str:
 
     return f"""
 <div class="gauge-wrap">
+  <style>
+    @keyframes gaugeInDynamic {{
+      from {{ stroke-dashoffset: 330; }}
+      to   {{ stroke-dashoffset: {final_offset:.2f}; }}
+    }}
+    .gauge-fill-dynamic {{
+      stroke-dashoffset: 330;
+      animation: gaugeInDynamic 1.2s cubic-bezier(.25,.46,.45,.94) .15s forwards;
+    }}
+  </style>
   <svg width="180" height="155" viewBox="0 0 180 155"
        xmlns="http://www.w3.org/2000/svg">
 
@@ -553,8 +563,7 @@ def gauge_svg(confidence: float, color: str) -> str:
       fill="none" stroke="{color}" stroke-width="13"
       stroke-dasharray="{arc} {circ}" stroke-linecap="round"
       transform="rotate(135 {cx} {cy})"
-      class="gauge-fill"
-      style="--final-offset: {final_offset:.2f};"/>
+      class="gauge-fill-dynamic"/>
 
     <!-- Percentage number in the centre -->
     <text x="{cx}" y="{cy - 5}" text-anchor="middle"
