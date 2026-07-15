@@ -281,8 +281,7 @@ section[data-testid="stSidebar"] { display: none; }
    We use wrapper divs (.btn-primary / .btn-ghost) because Streamlit generates
    its own button HTML; we target that inner button via CSS.
    ---------------------------------------------------------------------------- */
-.btn-primary [data-testid="stButton"] > button,
-.btn-ghost   [data-testid="stButton"] > button {
+[data-testid="stButton"] > button {
     width        : 100%;
     font-family  : 'Bebas Neue', sans-serif;
     font-size    : 1.25rem;
@@ -294,24 +293,24 @@ section[data-testid="stSidebar"] { display: none; }
     border       : none;
 }
 
-.btn-primary [data-testid="stButton"] > button {
+[data-testid="stButton"] > button[kind="primary"] {
     background  : #FFC72C;
     color       : #101013;
     box-shadow  : 0 4px 24px #FFC72C2A;
 }
-.btn-primary [data-testid="stButton"] > button:hover {
+[data-testid="stButton"] > button[kind="primary"]:hover {
     background  : #FFD555;
     box-shadow  : 0 6px 32px #FFC72C44;
     transform   : translateY(-2px);
 }
-.btn-primary [data-testid="stButton"] > button:active { transform: translateY(0); }
+[data-testid="stButton"] > button[kind="primary"]:active { transform: translateY(0); }
 
-.btn-ghost [data-testid="stButton"] > button {
+[data-testid="stButton"] > button[kind="secondary"] {
     background  : transparent;
     color       : #8B8B95;
     border      : 1px solid #33333C !important;
 }
-.btn-ghost [data-testid="stButton"] > button:hover {
+[data-testid="stButton"] > button[kind="secondary"]:hover {
     border-color: #FFC72C55 !important;
     color       : #FFC72C;
     background  : #FFC72C0A;
@@ -737,9 +736,7 @@ with col_left:
 
     # ── Action buttons ─────────────────────────────────────────────────────
     if has_file and not has_result:
-        st.markdown('<div class="btn-primary">', unsafe_allow_html=True)
-        analyze = st.button("ANALYZE SIGN", use_container_width=True, key="btn_analyze")
-        st.markdown("</div>", unsafe_allow_html=True)
+        analyze = st.button("ANALYZE SIGN", use_container_width=True, key="btn_analyze", type="primary")
 
         if analyze:
             st.session_state.analyzing = True
@@ -776,13 +773,11 @@ with col_left:
             st.rerun()
 
     elif has_result:
-        st.markdown('<div class="btn-ghost">', unsafe_allow_html=True)
-        if st.button("TRY ANOTHER IMAGE", use_container_width=True, key="btn_reset"):
+        if st.button("TRY ANOTHER IMAGE", use_container_width=True, key="btn_reset", type="secondary"):
             st.session_state.prediction   = None
             st.session_state.analyzing    = False
             st.session_state.uploader_key += 1
             st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -832,34 +827,30 @@ with col_right:
         color      = SIGN_COLOR.get(class_name, "#FFC72C")
         high_conf  = confidence >= 0.70
 
-        st.markdown('<div class="result-panel">', unsafe_allow_html=True)
+        icon_html    = sign_icon_svg(class_name, size=72)
+        verdict_col  = "#52B788" if high_conf else "#FFC72C"
+        verdict_txt  = "HIGH CONFIDENCE" if high_conf else "LOW CONFIDENCE"
+        gauge_html   = gauge_svg(confidence, color)
 
-        # ── Gauge + Sign icon side by side ────────────────────────────────
-        g_col, icon_col = st.columns([1, 1])
-
-        with g_col:
-            st.markdown(gauge_svg(confidence, color), unsafe_allow_html=True)
-
-        with icon_col:
-            icon_html    = sign_icon_svg(class_name, size=72)
-            verdict_col  = "#52B788" if high_conf else "#FFC72C"
-            verdict_txt  = "HIGH CONFIDENCE" if high_conf else "LOW CONFIDENCE"
-            st.markdown(f"""
-<div style="display:flex;flex-direction:column;justify-content:center;
-            height:155px;gap:.6rem;padding-left:.5rem;">
-  {icon_html}
-  <p class="result-name" style="color:{color};">{class_name.upper()}</p>
-  <p style="font-family:'JetBrains Mono';font-size:.68rem;letter-spacing:1.5px;
-            color:{verdict_col};margin:0;">{verdict_txt}</p>
-</div>
-""", unsafe_allow_html=True)
-
-        # Divider
-        st.markdown('<hr style="border:none;border-top:1px solid #33333C;margin:1rem 0;">',
-                    unsafe_allow_html=True)
-
-        # ── All-class confidence bars ──────────────────────────────────────
-        st.markdown('<p class="micro-label">ALL CLASS SCORES</p>', unsafe_allow_html=True)
+        result_html = f"""
+<div class="result-panel">
+  <div style="display:flex;gap:1rem;align-items:center;">
+    <div style="flex:1;">
+      {gauge_html}
+    </div>
+    <div style="flex:1;">
+      <div style="display:flex;flex-direction:column;justify-content:center;
+                  height:155px;gap:.6rem;padding-left:.5rem;">
+        {icon_html}
+        <p class="result-name" style="color:{color};">{class_name.upper()}</p>
+        <p style="font-family:'JetBrains Mono';font-size:.68rem;letter-spacing:1.5px;
+                  color:{verdict_col};margin:0;">{verdict_txt}</p>
+      </div>
+    </div>
+  </div>
+  <hr style="border:none;border-top:1px solid #33333C;margin:1rem 0;">
+  <p class="micro-label">ALL CLASS SCORES</p>
+"""
 
         sorted_cls = sorted(lbl_map.items(),
                             key=lambda x: all_probs[int(x[0])],
@@ -873,7 +864,7 @@ with col_right:
             emo       = SIGN_EMOJI.get(cname, "🚦")
             pct_str   = f"{prob * 100:.1f}"
 
-            st.markdown(f"""
+            result_html += f"""
 <div class="bar-row">
   <div class="{head_cls}">
     <span>{emo}&nbsp; {cname}</span>
@@ -887,9 +878,10 @@ with col_right:
     </div>
   </div>
 </div>
-""", unsafe_allow_html=True)
-
-        st.markdown("</div>", unsafe_allow_html=True)  # close .result-panel
+"""
+        result_html += "</div>"
+        
+        st.markdown(result_html, unsafe_allow_html=True)
 
 
 # ── Footer ────────────────────────────────────────────────────────────────────
